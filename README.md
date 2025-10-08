@@ -69,8 +69,7 @@ Ce modèle :
 
 ---
 
-![Interface du Chatbot](static/images/interface_chatbot.png)
-
+![Interface du Chatbot](interface_chatbot.png)
 
 ---
 
