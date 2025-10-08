@@ -82,14 +82,14 @@ git clone https://github.com/AbdoDbaibigh/legal-chatbot.git
 cd chatbot-juridique
 ```
 
-### 3️⃣ Configurer la clé API OpenAI
+### 2️⃣ Configurer la clé API OpenAI
 
 Créer un fichier .env à la racine du projet :
 ```bash
 API_KEY=ta_cle_api_openai
 ```
 
-### 4️⃣ Lancer le serveur Flask
+### 3️⃣ Lancer le serveur Flask
 ```bash
 python app.py
 ```
