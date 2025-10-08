@@ -1,0 +1,5 @@
+flask
+openai
+python-dotenv
+openai==0.28
+//pip install -r requirements.txt

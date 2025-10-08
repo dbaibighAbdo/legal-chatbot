@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant Juridique Marocain</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 50px;
+            background-color: #f5f5f5;
+        }
+        .chat-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 70%;
+        }
+        .user-message {
+            background-color: #2c3e50;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+        .bot-message {
+            background-color: #e9ecef;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+        .input-area {
+            display: flex;
+        }
+        #question {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+        #ask-btn {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        #ask-btn:hover {
+            background-color: #1a252f;
+        }
+        .disclaimer {
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .article-ref {
+            font-weight: bold;
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Chatbot Juridique Marocain💼</h1>
+    <div class="chat-container">
+        <div class="chat-box" id="chatBox">
+            <div class="message bot-message">
+            Bonjour! Je suis un assistant spécialisé en droit marocain, comment puis-je vous aider aujourd'hui?
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="question" placeholder="Posez votre question juridique..." autocomplete="off">
+            <button id="ask-btn">Envoyer</button>
+        </div>
+    </div>
+    <div class="disclaimer">
+        Note: Ce chatbot fournit des informations juridiques générales, pas des conseils juridiques.
+        Consultez un avocat qualifié pour des conseils spécifiques.
+    </div>
+
+    <script>
+        document.getElementById('ask-btn').addEventListener('click', sendQuestion);
+        document.getElementById('question').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendQuestion();
+            }
+        });
+
+        function sendQuestion() {
+            const questionInput = document.getElementById('question');
+            const question = questionInput.value.trim();
+            
+            if (!question) return;
+            
+            // Add user question to chat
+            const chatBox = document.getElementById('chatBox');
+            addMessage(question, 'user-message');
+            
+            // Clear input
+            questionInput.value = '';
+            
+            // Show typing indicator
+            const typingIndicator = addMessage("Recherche en cours...", 'bot-message');
+            
+            // Send to server
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `question=${encodeURIComponent(question)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove typing indicator and add response
+                chatBox.removeChild(typingIndicator);
+                
+                // Process response to highlight article references
+                let formattedResponse = data.answer;
+                formattedResponse = formattedResponse.replace(/(Article \d+)/g, '<span class="article-ref">$1</span>');
+                formattedResponse = formattedResponse.replace(/\n/g, '<br>');
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message bot-message';
+                messageDiv.innerHTML = formattedResponse;
+                chatBox.appendChild(messageDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                chatBox.removeChild(typingIndicator);
+                addMessage("Désolé, une erreur s'est produite. Veuillez réessayer.", 'bot-message');
+            });
+        }
+        
+        function addMessage(text, className) {
+            const chatBox = document.getElementById('chatBox');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${className}`;
+            messageDiv.textContent = text;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return messageDiv;
+        }
+    </script>
+</body>
+</html>
